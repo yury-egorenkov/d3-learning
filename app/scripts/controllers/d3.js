@@ -34,24 +34,25 @@ angular.module('d3LearningApp')
       return row;
     };
 
-    var margin = {top: 50, right: 0, bottom: 0, left: 0};
+    var margin = {top: 20, right: 0, bottom: 0, left: 20};
 
-    var width = 700 - margin.left - margin.right;
+    var width = 800 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
 
     var svg = d3.select('.d3-container').append('svg')
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
-            .append('g')
+          .append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
         
-    var color = d3.scale.linear()
-        .domain([0, 400000, 650000])
-        .range(['white', 'green', '#020']);
+    var color = d3.scale.ordinal()
+        .domain(['', 'продана'])
+        .range(['none', 'green'])
+        
     
-    var size = 10;
+    var size = 15;
 
-    var buildingSize = { width: 200, height: 180 };
+    var buildingSize = { width: 240, height: 180 };
 
     d3.csv('http://d3-js.ru/data/Mirgorod-sales.csv', $scope.prepare,
       function (rows) {
@@ -66,10 +67,11 @@ angular.module('d3LearningApp')
             .domain(["ГП1-А", "ГП2-А", "ГП3-А", "ГП4-А", "ГП4-Б", "ГП4-В"])
             .rangeBands([0, buildingNames.length]);
 
-        var area = svg.selectAll('g')
+        var area = svg.selectAll('g.building')
           .data(nested)
           .enter()
           .append('g')
+          .attr('class', 'building')
           .attr('transform', function (d) {
             var b = d.key;
             var row = ["ГП1-А", "ГП2-А", "ГП3-А"].indexOf(b) == -1 ? 0 : 1;
@@ -82,36 +84,47 @@ angular.module('d3LearningApp')
               col = 2;  
 
             return 'translate(' + col * buildingSize.width + ', ' + row * buildingSize.height + ')';
+          })
 
-          });
+        var flats = area.selectAll('g.flats')
+          .data(function (d) { return [d]; })
+          .enter()
+          .append('g')
+          .attr('class', 'flats');
 
-        var building = area.selectAll('g')
+        var building = flats.selectAll('g.floor')
           .data(function (d) { return d.values; })
           .enter()
-          .append('g');
+          .append('g')
+          .attr('class', 'floor');
 
         var floor = building.selectAll('g')
           .data(function (d) { return d.values; })
           .enter()
           .append('g')
+          .attr('class', 'column')
           .attr('transform', function (d) {
             var num_of_floors = ["ГП1-А", "ГП2-А", "ГП3-А"].indexOf(d.building) == -1 ? 10 : 17;
             var height = (num_of_floors + 1) * size;
 
-            return 'translate(0, ' + (height - d.floor * (size + 1)) + ')'; 
+            return 'translate(0, ' + (height - d.floor * size) + ')'; 
           });
 
         floor.selectAll('rect')
-          .data(function (d, i) {    
-            return [d]; 
-          })
+          .data(function (d) { return [d]; })
           .enter()
           .append('rect')
-          .attr('x', function(d) { return d.room_len * size + d.room_number; })
-          .attr('width', function(d) { return size * d.num_of_rooms; })
-          .attr('height', function(d) { return size; })
-          .attr('fill', 'gray')
+          .attr('x', function (d) { return d.room_len * size; })
+          .attr('width', function (d) { return size * d.num_of_rooms; })
+          .attr('height', function (d) { return size; })
+          .attr('fill', function (d) { console.log(d.status); return color(d.status); })
+          .attr('stroke', '#ccc')
         
+        floor.append('text')
+          .text(function (d) { return d.floor; })
+          .attr('transform', function (d) { return 'translate(-15,' + (size - 4) + ')'; })
+          .attr('class', 'floor_number')
+
          
       });   
   
