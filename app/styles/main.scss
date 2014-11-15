@@ -95,6 +95,13 @@ body {
     font-size: 10px;
     line-height: 15px;
 }
+
+.price {
+    fill: black;
+    font-size: 9px;
+
+}
+
 .social {
     $c1: #d34c65;
     $c2: #DB6E82;
@@ -193,10 +200,13 @@ body {
         content: '\f113';
     }
     a:nth-of-type(5):before {
-        content: '\f17d';
+        content: '\f189';
     }
     a:nth-of-type(6):before {
         content: '\f1cb';
+    }
+    a:nth-of-type(7):before {
+        content: '@';
     }
 }
 

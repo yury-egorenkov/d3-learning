@@ -21,7 +21,8 @@ angular.module('d3LearningApp')
       
       row.room_len = 0;
       row.room_number = 0;
-      
+      row.price_short = Math.round(Number(row.price.replace(/,/g, ''))/1E6)
+
       var previous = $scope.previousRow;
 
       if (previous != null && previous.floor == row.floor) {
@@ -117,9 +118,9 @@ angular.module('d3LearningApp')
           .attr('x', function (d) { return d.room_len * size; })
           .attr('width', function (d) { return size * d.num_of_rooms; })
           .attr('height', function (d) { return size; })
-          .attr('fill', function (d) { console.log(d.status); return color(d.status); })
+          .attr('fill', function (d) { return color(d.status); })
           .attr('stroke', '#ccc')
-        
+
         floor.append('text')
           .text(function (d) { return d.floor; })
           .attr('transform', function (d) { return 'translate(-15,' + (size - 4) + ')'; })
@@ -128,6 +129,12 @@ angular.module('d3LearningApp')
         area.append('text')
           .text(function (d) { return d.key; })
           .attr('transform', 'translate(60, 10)')
+
+        floor.append('text')
+          .text(function (d) { return d.price_short; })
+          .attr('class', 'price')
+          .attr('x', function (d) { return d.room_len * size; })
+          .attr('transform', 'translate(4, 10)')
 
 
          

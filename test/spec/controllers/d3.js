@@ -36,6 +36,7 @@ describe('Controller: D3Ctrl', function () {
     expect(row.floor).toBe(1))
     expect(row.room_len).toBe(0);
     expect(row.room_number).toBe(0);
+    expect(row.price_short).toBe(3);
 
     row = scope.prepare(inputRows[1]);
 
