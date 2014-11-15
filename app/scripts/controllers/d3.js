@@ -34,7 +34,7 @@ angular.module('d3LearningApp')
       return row;
     };
 
-    var margin = {top: 0, right: 0, bottom: 0, left: 60};
+    var margin = {top: 50, right: 0, bottom: 0, left: 0};
 
     var width = 700 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
@@ -49,27 +49,60 @@ angular.module('d3LearningApp')
         .domain([0, 400000, 650000])
         .range(['white', 'green', '#020']);
     
-    var size = 15;
+    var size = 10;
+
+    var buildingSize = { width: 200, height: 180 };
 
     d3.csv('http://d3-js.ru/data/Mirgorod-sales.csv', $scope.prepare,
       function (rows) {
-        
+
         var nested = d3.nest()
             .key(function (d) { return d.building })
             .key(function (d) { return d.floor })
             .entries(rows);
 
-        console.log(nested[0].values);
+        var buildingNames = d3.keys(nested).map(function (i) { return nested[i].key; });
+        var buildingScaleX = d3.scale.ordinal()
+            .domain(["ГП1-А", "ГП2-А", "ГП3-А", "ГП4-А", "ГП4-Б", "ГП4-В"])
+            .rangeBands([0, buildingNames.length]);
 
-        var rooms = nested[0].values[0];
+        var area = svg.selectAll('g')
+          .data(nested)
+          .enter()
+          .append('g')
+          .attr('transform', function (d) {
+            var b = d.key;
+            var row = ["ГП1-А", "ГП2-А", "ГП3-А"].indexOf(b) == -1 ? 0 : 1;
+            var col = 0;
 
-        var floor = svg.selectAll('g')
-          .data(function (d) { return rooms.values; })
+            if (["ГП2-А", "ГП4-Б"].indexOf(b) != -1)
+              col = 1;  
+
+            if (["ГП3-А", "ГП4-В"].indexOf(b) != -1)
+              col = 2;  
+
+            return 'translate(' + col * buildingSize.width + ', ' + row * buildingSize.height + ')';
+
+          });
+
+        var building = area.selectAll('g')
+          .data(function (d) { return d.values; })
           .enter()
           .append('g');
 
+        var floor = building.selectAll('g')
+          .data(function (d) { return d.values; })
+          .enter()
+          .append('g')
+          .attr('transform', function (d) {
+            var num_of_floors = ["ГП1-А", "ГП2-А", "ГП3-А"].indexOf(d.building) == -1 ? 10 : 17;
+            var height = (num_of_floors + 1) * size;
+
+            return 'translate(0, ' + (height - d.floor * (size + 1)) + ')'; 
+          });
+
         floor.selectAll('rect')
-          .data(function (d, i) {             
+          .data(function (d, i) {    
             return [d]; 
           })
           .enter()
