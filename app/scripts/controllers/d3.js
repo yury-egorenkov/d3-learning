@@ -123,7 +123,12 @@ angular.module('d3LearningApp')
         floor.append('text')
           .text(function (d) { return d.floor; })
           .attr('transform', function (d) { return 'translate(-15,' + (size - 4) + ')'; })
-          .attr('class', 'floor_number')
+          .attr('class', 'floor_number');
+
+        area.append('text')
+          .text(function (d) { return d.key; })
+          .attr('transform', 'translate(60, 10)')
+
 
          
       });   
