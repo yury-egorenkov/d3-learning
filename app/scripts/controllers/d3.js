@@ -10,7 +10,29 @@
 angular.module('d3LearningApp')
   .controller('D3Ctrl', function ($scope) {
 
-    $scope.test = function (x) { return 2; };
+    $scope.previousRow = null;
+
+    $scope.prepare = function (row) { 
+      if (row.apartment.length == 0)
+          return null;        
+
+      row.building = row.apartment.split('-').slice(1, 3).join('-');
+      row.num_of_rooms = Number(row.num_of_rooms);
+      
+      row.room_len = 0;
+      row.room_number = 0;
+      
+      var previous = $scope.previousRow;
+
+      if (previous != null && previous.floor == row.floor) {
+        row.room_len = previous.room_len + previous.num_of_rooms;
+        row.room_number = previous.room_number + 1;
+      }
+
+      $scope.previousRow = row;
+
+      return row;
+    };
 
     var margin = {top: 0, right: 0, bottom: 0, left: 60};
 
@@ -29,18 +51,7 @@ angular.module('d3LearningApp')
     
     var size = 15;
 
-    d3.csv('http://d3-js.ru/data/Mirgorod-sales.csv',      
-      function (row) {
-        if (row.apartment.length == 0)
-          return null;
-
-        console.log(JSON.stringify(row));
-
-        row.building = row.apartment.split('-').slice(1, 3).join('-');
-        row.num_of_rooms = Number(row.num_of_rooms);
-
-        return row;
-      },
+    d3.csv('http://d3-js.ru/data/Mirgorod-sales.csv', $scope.prepare,
       function (rows) {
         
         var nested = d3.nest()
@@ -59,9 +70,6 @@ angular.module('d3LearningApp')
 
         floor.selectAll('rect')
           .data(function (d, i) {             
-            var rooms = floor.data();
-            d.room_len = i > 0 ? rooms[i - 1].room_len + rooms[i - 1].num_of_rooms : 0;
-            d.room_number = i;
             return [d]; 
           })
           .enter()
